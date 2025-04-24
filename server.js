@@ -21,8 +21,8 @@ redisClient.connect().catch(console.error);
 app.get('/cart', async (req, res) => {
   const { user_email } = req.query;
   if (!user_email) return res.status(400).json({ error: 'Missing user_email' });
-
-  const key = `cart:user:${user_email}`;
+    const prefix = process.env.ENV_PREFIX || 'default';
+  const key = `${prefix}:cart:user:${user_email}`;
   const cart = await redisClient.hGetAll(key);
   res.json(cart);
 });
@@ -33,8 +33,8 @@ app.post('/cart', async (req, res) => {
   if (!user_email || !product_id || quantity == null) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
-
-  const key = `cart:user:${user_email}`;
+  const prefix = process.env.ENV_PREFIX || 'default';
+  const key = `${prefix}:cart:user:${user_email}`;
   await redisClient.hSet(key, product_id, quantity);
   res.json({ message: 'Product added to cart' });
 });
@@ -45,8 +45,8 @@ app.delete('/cart', async (req, res) => {
   if (!user_email || !product_id) {
     return res.status(400).json({ error: 'Missing user_email or product_id' });
   }
-
-  const key = `cart:user:${user_email}`;
+  const prefix = process.env.ENV_PREFIX || 'default';
+  const key = `${prefix}:cart:user:${user_email}`;
   await redisClient.hDel(key, product_id);
   res.json({ message: 'Product removed from cart' });
 });
@@ -55,8 +55,8 @@ app.delete('/cart', async (req, res) => {
 app.post('/cart/clear', async (req, res) => {
   const { user_email } = req.body;
   if (!user_email) return res.status(400).json({ error: 'Missing user_email' });
-
-  const key = `cart:user:${user_email}`;
+  const prefix = process.env.ENV_PREFIX || 'default';
+  const key = `${prefix}:cart:user:${user_email}`;
   await redisClient.del(key);
   res.json({ message: 'Cart cleared' });
 });
